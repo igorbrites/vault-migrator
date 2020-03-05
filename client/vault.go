@@ -1,17 +1,20 @@
 package client
 
 import (
+	"encoding/base64"
+	"errors"
 	"fmt"
+
 	"github.com/hashicorp/vault/api"
 )
 
 type Vault struct {
-	Client *api.Client,
-	IsKVV2 bool,
+	Client *api.Client
+	IsKVV2 bool
 	Path string
 }
 
-func New(address string, token string) *Vault, error {
+func New(address string, token string) (*Vault, error) {
 	config := api.DefaultConfig()
 	config.Address = address
 
@@ -21,7 +24,7 @@ func New(address string, token string) *Vault, error {
 		return nil, err
 	}
 
-	origin.SetToken(originToken)
+	client.SetToken(token)
 
 	health, err := client.Sys().Health()
 
@@ -30,15 +33,11 @@ func New(address string, token string) *Vault, error {
 	}
 
 	if !health.Initialized || health.Sealed {
-		return nil, error {
-			func Error() {
-				return "Vault unable to handle requests."
-			}
-		}
+		return nil, errors.New("Vault unable to handle requests.")
 	}
 
 	return &Vault{
-		Client: client
+		Client: client,
 	}, nil
 }
 
@@ -56,20 +55,21 @@ func (v *Vault) SetPath(path string) {
 
 // Read accepts a vault path to read the data out of. It will return a map
 // of base64 encoded values.
-func (v *Vault) Read(path string) map[string]interface{} {
-	out := make(map[string]interface{})
+func (v *Vault) Read(path string) (map[string]string, error) {
+	out := make(map[string]string)
 
 	s, err := v.Client.Logical().Read(path)
 	if err != nil {
 		fmt.Printf("Error reading secrets, err=%v", err)
-		return nil
+		return nil, err
 	}
 
 	// Encode all k,v pairs
 	if s == nil || s.Data == nil {
 		fmt.Printf("No data to read at path, %s\n", path)
-		return out
+		return nil, errors.New("No data to read at path, "+path)
 	}
+
 	for k, v := range s.Data {
 		switch t := v.(type) {
 		case string:
@@ -87,7 +87,7 @@ func (v *Vault) Read(path string) map[string]interface{} {
 		}
 	}
 
-	return out
+	return out, nil
 }
 
 // Write takes in a vault path and base64 encoded data to be written at that path.
@@ -105,7 +105,7 @@ func (v *Vault) Write(path string, data map[string]string) error {
 
 	var err error
 
-	if destinationIsKvV2 {
+	if v.IsKVV2 {
 		d := make(map[string]interface{})
 		d["data"] = body
 		_, err = v.Client.Logical().Write(path, d)
