@@ -46,8 +46,8 @@ func (v *Vault) KVIsV2(isKVV2 bool) {
 }
 
 func (v *Vault) SetPath(path string) {
-	if v.IsKVV2 {
-		path += "data/"
+	if path[len(path)-1:] != "/" {
+		path += "/"
 	}
 
 	v.Path = path

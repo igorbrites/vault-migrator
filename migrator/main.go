@@ -11,7 +11,27 @@ type Migrator struct {
 }
 
 func (m Migrator) Start() {
-	m.recursiveMigration(m.Origin.Path, m.Destination.Path)
+	originPath := m.Origin.Path
+	destinationPath := m.Destination.Path
+
+	if m.Origin.IsKVV2 {
+		originPath += "data/"
+	}
+
+	if m.Destination.IsKVV2 {
+		destinationPath += "data/"
+	}
+
+	fmt.Printf("Starting migration of %q\n", originPath)
+	m.recursiveMigration(originPath, destinationPath)
+
+	if m.Origin.IsKVV2 && m.Destination.IsKVV2 {
+		originPath = m.Origin.Path+"metadata/"
+		destinationPath = m.Destination.Path+"metadata/"
+
+		fmt.Printf("Starting migration of %q\n", originPath)
+		m.recursiveMigration(originPath, destinationPath)
+	}
 }
 
 func (m Migrator) recursiveMigration(originPath string, destinationPath string) {
