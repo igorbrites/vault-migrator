@@ -1,4 +1,4 @@
-package client
+package vault
 
 import (
 	"encoding/base64"
@@ -11,7 +11,7 @@ import (
 type Vault struct {
 	Client *api.Client
 	IsKVV2 bool
-	Path string
+	Path   string
 }
 
 func New(address string, token string) (*Vault, error) {
@@ -67,7 +67,7 @@ func (v *Vault) Read(path string) (map[string]string, error) {
 	// Encode all k,v pairs
 	if s == nil || s.Data == nil {
 		fmt.Printf("No data to read at path, %s\n", path)
-		return nil, errors.New("No data to read at path, "+path)
+		return nil, errors.New("No data to read at path, " + path)
 	}
 
 	for k, v := range s.Data {
