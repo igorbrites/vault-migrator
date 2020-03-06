@@ -33,7 +33,7 @@ func New(address string, token string) (*Vault, error) {
 	}
 
 	if !health.Initialized || health.Sealed {
-		return nil, errors.New("Vault unable to handle requests.")
+		return nil, errors.New("Vault unable to handle requests")
 	}
 
 	return &Vault{

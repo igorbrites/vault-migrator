@@ -6,30 +6,28 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/igorbrites/vault-migrator/client"
 	"github.com/igorbrites/vault-migrator/migrator"
+	"github.com/igorbrites/vault-migrator/vault"
 )
 
 var (
 	m migrator.Migrator
-	origin client.Vault
-	destination client.Vault
 
-	originAddr = flag.String("origin-addr", "", "The Vault Address of the backend to be migrated")
+	originAddr   = flag.String("origin-addr", "", "The Vault Address of the backend to be migrated")
+	originPath   = flag.String("origin-path", "secret/", "The path to be migrated (no need to pass \"data/\" when using KV-V2)")
 	originIsKvV2 = flag.Bool("origin-is-kvv2", false, "Whether the origin backend is in KV-V2 format")
-	originPath = flag.String("origin-path", "secret/", "The path to be migrated (no need to pass \"data/\" when using KV-V2)")
 
-	destinationAddr = flag.String("destination-addr", "", "The Vault Address of the backend that will receive the migration")
+	destinationAddr   = flag.String("destination-addr", "", "The Vault Address of the backend that will receive the migration")
 	destinationIsKvV2 = flag.Bool("destination-is-kvv2", false, "Whether the destination backend is in KV-V2 format")
 
-	originToken = os.Getenv("ORIGIN_VAULT_TOKEN")
+	originToken      = os.Getenv("ORIGIN_VAULT_TOKEN")
 	destinationToken = os.Getenv("DESTINATION_VAULT_TOKEN")
 )
 
 func main() {
 	if err := validate(); err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 
 	startup()
@@ -37,7 +35,7 @@ func main() {
 
 func startup() {
 	m = migrator.Migrator{
-		Origin: *buildClient(*originAddr, originToken, *originPath, *originIsKvV2),
+		Origin:      *buildClient(*originAddr, originToken, *originPath, *originIsKvV2),
 		Destination: *buildClient(*destinationAddr, destinationToken, *originPath, *destinationIsKvV2),
 	}
 
@@ -70,8 +68,8 @@ func validate() error {
 	return nil
 }
 
-func buildClient(addr string, token string, path string, isKVV2 bool) *client.Vault {
-	c, err := client.New(addr, token)
+func buildClient(addr string, token string, path string, isKVV2 bool) *vault.Vault {
+	c, err := vault.New(addr, token)
 
 	if err != nil {
 		fmt.Printf("Unable to generate client, err=%v\n", err)

@@ -2,12 +2,12 @@ package migrator
 
 import (
 	"fmt"
-	"github.com/igorbrites/vault-migrator/client"
+	"github.com/igorbrites/vault-migrator/vault"
 )
 
 type Migrator struct {
-	Origin client.Vault
-	Destination client.Vault
+	Origin      vault.Vault
+	Destination vault.Vault
 }
 
 func (m Migrator) Start() {
