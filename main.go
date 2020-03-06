@@ -25,6 +25,23 @@ var (
 )
 
 func main() {
+	flag.Usage = func() {
+		help := `Usage: %s [args]
+
+First you must define the environment variables bellow:
+  ORIGIN_VAULT_TOKEN
+        The token with permittion to read the path to be migrated
+  DESTINATION_VAULT_TOKEN
+        The token with permittion to write in the migrated path
+
+Args:
+`
+
+		fmt.Fprintf(flag.CommandLine.Output(), help, os.Args[0])
+		flag.PrintDefaults()
+		os.Exit(0)
+	}
+
 	if err := validate(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)

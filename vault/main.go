@@ -53,8 +53,6 @@ func (v *Vault) SetPath(path string) {
 	v.Path = path
 }
 
-// Read accepts a vault path to read the data out of. It will return a map
-// of base64 encoded values.
 func (v *Vault) Read(path string) (map[string]string, error) {
 	out := make(map[string]string)
 
@@ -64,7 +62,6 @@ func (v *Vault) Read(path string) (map[string]string, error) {
 		return nil, err
 	}
 
-	// Encode all k,v pairs
 	if s == nil || s.Data == nil {
 		fmt.Printf("No data to read at path, %s\n", path)
 		return nil, errors.New("No data to read at path, " + path)
@@ -90,11 +87,9 @@ func (v *Vault) Read(path string) (map[string]string, error) {
 	return out, nil
 }
 
-// Write takes in a vault path and base64 encoded data to be written at that path.
 func (v *Vault) Write(path string, data map[string]string) error {
 	body := make(map[string]interface{})
 
-	// Decode the base64 values
 	for k, v := range data {
 		b, err := base64.StdEncoding.DecodeString(v)
 		if err != nil {

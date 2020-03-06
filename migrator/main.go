@@ -22,14 +22,14 @@ func (m Migrator) Start() {
 		destinationPath += "data/"
 	}
 
-	fmt.Printf("Starting migration of %q\n", originPath)
+	fmt.Printf("Starting migration of \"%q\"\n\n", originPath)
 	m.recursiveMigration(originPath, destinationPath)
 
 	if m.Origin.IsKVV2 && m.Destination.IsKVV2 {
 		originPath = m.Origin.Path+"metadata/"
 		destinationPath = m.Destination.Path+"metadata/"
 
-		fmt.Printf("Starting migration of %q\n", originPath)
+		fmt.Printf("Starting migration of \"%q\"\n\n", originPath)
 		m.recursiveMigration(originPath, destinationPath)
 	}
 }
