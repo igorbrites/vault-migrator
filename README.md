@@ -24,6 +24,8 @@ Args:
         Whether the origin backend is in KV-V2 format
   -origin-path string
         The path to be migrated (no need to pass "data/" when using KV-V2) (default "secret/")
+  -overwrite
+        Whether to overwrite the path on destination, if it already exists
 ```
 
 ## Example
