@@ -20,6 +20,8 @@ var (
 	destinationAddr   = flag.String("destination-addr", "", "The Vault Address of the backend that will receive the migration")
 	destinationIsKvV2 = flag.Bool("destination-is-kvv2", false, "Whether the destination backend is in KV-V2 format")
 
+	overwrite = flag.Bool("overwrite", false, "Whether to overwrite the path on destination, if it already exists")
+
 	originToken      = os.Getenv("ORIGIN_VAULT_TOKEN")
 	destinationToken = os.Getenv("DESTINATION_VAULT_TOKEN")
 )
@@ -54,6 +56,7 @@ func startup() {
 	m = migrator.Migrator{
 		Origin:      *buildClient(*originAddr, originToken, *originPath, *originIsKvV2),
 		Destination: *buildClient(*destinationAddr, destinationToken, *originPath, *destinationIsKvV2),
+		Overwrite:   *overwrite,
 	}
 
 	m.Start()

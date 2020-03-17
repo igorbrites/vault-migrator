@@ -8,6 +8,7 @@ import (
 type Migrator struct {
 	Origin      vault.Vault
 	Destination vault.Vault
+	Overwrite   bool
 }
 
 func (m Migrator) Start() {
@@ -71,6 +72,18 @@ func (m Migrator) copyKey(originPath string, destinationPath string) {
 
 	if err != nil {
 		fmt.Printf("Error reading key %q, err=%v", originPath, err)
+		return
+	}
+
+	to, err := m.Destination.Read(originPath)
+
+	if err != nil {
+		fmt.Printf("Error reading key %q, err=%v", originPath, err)
+		return
+	}
+
+	if (to == nil || len(to) == 0) && !m.Overwrite {
+		fmt.Println("The destination path exists and overwrite is disabled. Skipping...")
 		return
 	}
 
