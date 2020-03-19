@@ -2,6 +2,7 @@ package vault
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -58,18 +59,18 @@ func (v *Vault) Read(path string) (map[string]string, error) {
 
 	s, err := v.Client.Logical().Read(path)
 	if err != nil {
-		fmt.Printf("Error reading secrets, err=%v", err)
 		return nil, err
 	}
 
 	if s == nil || s.Data == nil {
-		fmt.Printf("No data to read at path, %s\n", path)
-		return nil, errors.New("No data to read at path, " + path)
+		return nil, fmt.Errorf("No data to read at path %q", path)
 	}
 
 	for k, v := range s.Data {
 		switch t := v.(type) {
 		case string:
+			out[k] = base64.StdEncoding.EncodeToString([]byte(t))
+		case json.Number:
 			out[k] = base64.StdEncoding.EncodeToString([]byte(t))
 		case map[string]interface{}:
 			if k == "data" {
@@ -80,7 +81,7 @@ func (v *Vault) Read(path string) (map[string]string, error) {
 				}
 			}
 		default:
-			fmt.Printf("error reading value at %s, key=%s, type=%T\n", path, k, v)
+			return nil, fmt.Errorf("Error reading value at %q, key=%q, type=%T", path, k, v)
 		}
 	}
 
